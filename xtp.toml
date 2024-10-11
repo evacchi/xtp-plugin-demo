@@ -1,0 +1,27 @@
+app_id = "app_01j6f7n277e4vrgyr9ey98ps64"
+
+# This is where 'xtp plugin push' expects to find the wasm file after the build script has run.
+bin = "dist/plugin.wasm"
+extension_point_id = "ext_01j9y0ypnjf17rpsyyt91kzq8h"
+name = "max"
+
+[scripts]
+
+  # xtp plugin build runs this script to generate the wasm file
+  build = "mkdir -p dist && tinygo build -target wasi -o dist/plugin.wasm ."
+
+  # xtp plugin init runs this script to format the plugin code
+  format = "go fmt"
+
+  # xtp plugin init runs this script before running the format script
+  prepare = "go get ./..."
+
+[[test]]
+  # label this test something recognizable to see in CLI output
+  name = "backtest"
+  # build the test wasm module, is run before the test
+  build = "cd tests && tinygo build -o ../dist/backtest.wasm -target wasi backtest.go"
+  # the wasm module to use as the test
+  with = "dist/backtest.wasm"
+  # provide mock input data to the plugin test call, returned to a 'MockInput' type of function call
+  mock_input = { file = "tests/backtest.csv" }
